@@ -1,16 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { usePuterStore } from "~/lib/puter";
+import { useAuthStore } from "~/lib/auth";
 
 const Auth = () => {
-    const { isLoading, auth } = usePuterStore();
+    const { user, isAuthenticated, signIn, signOut } = useAuthStore();
     const location = useLocation();
-    const next = location.search.split('next=')[1];
+    const searchParams = new URLSearchParams(location.search);
+    const next = searchParams.get("next") || "/";
     const navigate = useNavigate();
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
 
     useEffect(() => {
-        if(auth.isAuthenticated) navigate(next);
-    }, [auth.isAuthenticated, next])
+        if (isAuthenticated) navigate(next);
+    }, [isAuthenticated, next, navigate]);
+
+    const handleSignIn = () => {
+        if (username && email) {
+            signIn(username, email);
+        }
+    };
 
     return (
         <main className="bg-[url('/images/bg-auth.svg')] bg-cover min-h-screen flex items-center justify-center">
@@ -21,28 +30,39 @@ const Auth = () => {
                         <h2>Log In to Continue Your Job Journey</h2>
                     </div>
                     <div>
-                        {isLoading ? (
-                            <button className="auth-button animate-pulse">
-                                <p>Signing you in...</p>
-                            </button>
+                        {isAuthenticated ? (
+                            <div className="flex flex-col gap-4">
+                                <p>Logged in as: {user?.username}</p>
+                                <button className="auth-button" onClick={signOut}>
+                                    <p>Log Out</p>
+                                </button>
+                            </div>
                         ) : (
-                            <>
-                                {auth.isAuthenticated ? (
-                                    <button className="auth-button" onClick={auth.signOut}>
-                                        <p>Log Out</p>
-                                    </button>
-                                ) : (
-                                    <button className="auth-button" onClick={auth.signIn}>
-                                        <p>Log In</p>
-                                    </button>
-                                )}
-                            </>
+                            <div className="flex flex-col gap-4">
+                                <input
+                                    type="text"
+                                    placeholder="Username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="px-4 py-2 border rounded"
+                                />
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="px-4 py-2 border rounded"
+                                />
+                                <button className="auth-button" onClick={handleSignIn}>
+                                    <p>Log In</p>
+                                </button>
+                            </div>
                         )}
                     </div>
                 </section>
             </div>
         </main>
-    )
-}
+    );
+};
 
-export default Auth
+export default Auth;

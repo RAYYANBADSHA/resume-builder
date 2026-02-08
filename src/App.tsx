@@ -1,6 +1,4 @@
-import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import { usePuterStore } from "./lib/puter";
 import Home from "./routes/home";
 import Auth from "./routes/auth";
 import Upload from "./routes/upload";
@@ -9,12 +7,6 @@ import Wipe from "./routes/wipe";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 export default function App() {
-  const { init } = usePuterStore();
-
-  useEffect(() => {
-    init();
-  }, [init]);
-
   return (
     <Routes>
       <Route path="/" element={<Home />} errorElement={<ErrorBoundary />} />
